@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Quote Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single column notebook — compose card up top, quotes as torn-out entries below, highlighter on speaker names */
+:root{
+  --paper:#eef1f6; --sheet:#ffffff; --ink:#1b2340; --muted:#5d6584; --line:#d6dbe8;
+  --accent:#2f4bd6; --hi:#ffe45c; --hi-ink:#1b2340; --danger:#c2362b;
+  --f-quote:"Young Serif", Georgia, "Times New Roman", serif;
+  --f-body:"Figtree", system-ui, -apple-system, Segoe UI, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11141f; --sheet:#1a1f2e; --ink:#e7eaf5; --muted:#9aa2c0; --line:#2c3347;
+  --accent:#8ea0ff; --hi:#e6c731; --hi-ink:#151a2b; --danger:#ff7b6e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11141f; --sheet:#1a1f2e; --ink:#e7eaf5; --muted:#9aa2c0; --line:#2c3347;
+  --accent:#8ea0ff; --hi:#e6c731; --hi-ink:#151a2b; --danger:#ff7b6e; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;padding:28px 16px 64px;display:flex;flex-direction:column;gap:22px}
+header h1{font-family:var(--f-quote);font-weight:400;font-size:clamp(34px,8vw,52px);line-height:1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+header h1 span{background:linear-gradient(transparent 55%,var(--hi) 55%,var(--hi) 92%,transparent 92%);color:inherit}
+header p{margin:8px 0 0;color:var(--muted)}
+.count{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+.compose{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.compose h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;min-width:0}
+input[type=text],input[type=datetime-local],input[type=search],textarea{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px}
+#q-text{font-family:var(--f-quote);font-size:18px;min-height:84px}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{flex-direction:row;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+textarea:disabled{opacity:.45}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:9px}
+.btn{background:var(--accent);color:var(--sheet);border:0;padding:10px 18px;font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+.msg{font-size:13px;color:var(--muted)}
+.msg.err{color:var(--danger)}
+
+.tools{display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:transparent;border:1px solid var(--line);color:var(--ink);padding:5px 11px;font-size:13px;border-radius:999px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+
+.list{display:flex;flex-direction:column;gap:14px}
+.q{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:10px}
+.q blockquote{margin:0;font-family:var(--f-quote);font-size:clamp(19px,4.6vw,23px);line-height:1.35;overflow-wrap:anywhere}
+.q blockquote::before{content:"\201C"}
+.q blockquote::after{content:"\201D"}
+.who{font-weight:700;font-size:15px}
+.who mark{background:linear-gradient(transparent 50%,var(--hi) 50%);color:var(--ink);padding:0 2px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ctx{border-left:3px solid var(--line);padding:2px 0 2px 12px;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.ctx b{color:var(--ink);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.08em;display:block}
+.nctx{display:inline-block;align-self:flex-start;background:var(--hi);color:var(--hi-ink);font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;transform:rotate(-1.5deg)}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px;font-size:12px;color:var(--muted)}
+.del{background:none;border:0;color:var(--danger);font-size:12px;padding:4px 6px}
+.empty{text-align:center;color:var(--muted);padding:36px 16px;border:1px dashed var(--line);border-radius:14px}
+.empty strong{display:block;font-family:var(--f-quote);font-weight:400;color:var(--ink);font-size:22px;margin-bottom:4px}
+@media (prefers-reduced-motion:no-preference){.q{animation:in .25s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>The <span>Quote</span> Book</h1>
+    <p>Things the group said that deserve to live forever.</p>
+  </header>
+
+  <form class="compose" id="compose" autocomplete="off">
+    <h2>Log a quote</h2>
+    <label for="q-text">The quote
+      <textarea id="q-text" maxlength="1000" placeholder="What did they say?" required></textarea>
+    </label>
+    <div class="row">
+      <label for="q-who">Who said it
+        <input type="text" id="q-who" maxlength="60" placeholder="Name" list="names" required>
+        <datalist id="names"></datalist>
+      </label>
+      <label for="q-when">Date &amp; time
+        <input type="datetime-local" id="q-when" required>
+      </label>
+    </div>
+    <label class="check" for="q-nctx"><input type="checkbox" id="q-nctx"> Better without context</label>
+    <label for="q-ctx" id="ctx-label">Context <span class="msg">(optional)</span>
+      <textarea id="q-ctx" maxlength="1000" placeholder="Where were you, what was happening…"></textarea>
+    </label>
+    <div class="actions">
+      <button class="btn" type="submit" id="q-save">Add to the book</button>
+      <span class="msg" id="q-msg" role="status"></span>
+    </div>
+  </form>
+
+  <section class="tools" aria-label="Browse quotes">
+    <div class="actions" style="justify-content:space-between">
+      <span class="count" id="count">Loading quotes…</span>
+    </div>
+    <input type="search" id="q-search" placeholder="Search quotes, names, context">
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="list" id="list" aria-live="polite">
+    <div class="empty"><strong>No quotes yet</strong>Add the first one above and it shows up here for everyone.</div>
+  </section>
+</div>
+
+<script type="module">
+// ===== PASTE YOUR FIREBASE CONFIG HERE (Firebase console → Project settings → Your apps → Web) =====
+const firebaseConfig = {
+  apiKey: "PASTE_ME",
+  authDomain: "PASTE_ME",
+  projectId: "PASTE_ME",
+  storageBucket: "PASTE_ME",
+  messagingSenderId: "PASTE_ME",
+  appId: "PASTE_ME"
+};
+// ===================================================================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const $ = s => document.querySelector(s);
+const form=$("#compose"), txt=$("#q-text"), who=$("#q-who"), when=$("#q-when"),
+      nctx=$("#q-nctx"), ctx=$("#q-ctx"), save=$("#q-save"), msg=$("#q-msg"),
+      list=$("#list"), count=$("#count"), search=$("#q-search"), chips=$("#chips"), names=$("#names");
+
+let quotes=[], speaker=null, col=null;
+
+const pad=n=>String(n).padStart(2,"0");
+function nowLocal(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes())}
+when.value=nowLocal();
+nctx.addEventListener("change",()=>{ctx.disabled=nctx.checked;if(nctx.checked)ctx.value=""});
+
+function fmtWhen(s){
+  const d=new Date(s); if(!s||isNaN(d)) return s||"";
+  return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" · "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function setMsg(t,err){msg.textContent=t;msg.className="msg"+(err?" err":"")}
+
+function render(){
+  const term=search.value.trim().toLowerCase();
+  const people=[...new Set(quotes.map(q=>q.who))].sort((a,b)=>a.localeCompare(b));
+  names.replaceChildren(...people.map(p=>{const o=document.createElement("option");o.value=p;return o}));
+  if(speaker&&!people.includes(speaker)) speaker=null;
+  chips.replaceChildren(...(people.length>1?["All",...people]:[]).map(p=>{
+    const b=el("button","chip",p);b.type="button";
+    b.setAttribute("aria-pressed",String(p==="All"?speaker===null:speaker===p));
+    b.onclick=()=>{speaker=p==="All"?null:p;render()};return b}));
+  const shown=quotes.filter(q=>(!speaker||q.who===speaker)&&(!term||[q.text,q.who,q.context].join(" ").toLowerCase().includes(term)));
+  count.textContent=quotes.length?(shown.length===quotes.length?quotes.length+(quotes.length===1?" quote":" quotes"):shown.length+" of "+quotes.length+" quotes"):"No quotes yet";
+  if(!shown.length){
+    const e=el("div","empty");
+    e.append(el("strong",null,quotes.length?"Nothing matches":"No quotes yet"),
+      document.createTextNode(quotes.length?"Try a different search or name.":"Add the first one above and it shows up here for everyone."));
+    list.replaceChildren(e);return;
+  }
+  list.replaceChildren(...shown.map(q=>{
+    const card=el("article","q");
+    card.append(el("blockquote",null,q.text));
+    const w=el("div","who");w.append("— ",el("mark",null,q.who));card.append(w);
+    card.append(el("div","meta",fmtWhen(q.when)));
+    if(q.noContext) card.append(el("span","nctx","Better without context"));
+    else if(q.context){const c=el("div","ctx");c.append(el("b",null,"Context"),document.createTextNode(q.context));card.append(c)}
+    return card;
+  }));
+}
+search.addEventListener("input",render);
+
+if(firebaseConfig.apiKey==="PASTE_ME"){
+  count.textContent="Setup needed: paste your Firebase config into index.html";
+}else{
+  const db=getFirestore(initializeApp(firebaseConfig));
+  col=collection(db,"quotes");
+  onSnapshot(query(col,orderBy("when","desc")),
+    snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
+    err=>{console.error(err);count.textContent="Couldn't load quotes. Check the Firestore rules and config."});
+}
+
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!col){setMsg("The site isn't connected to Firebase yet.",true);return}
+  const data={text:txt.value.trim(),who:who.value.trim(),when:when.value,
+    noContext:nctx.checked,context:nctx.checked?"":ctx.value.trim(),createdAt:serverTimestamp()};
+  if(!data.text||!data.who||!data.when){setMsg("Fill in the quote, who said it, and when.",true);return}
+  save.disabled=true;setMsg("Saving…");
+  try{
+    await addDoc(col,data);
+    txt.value="";ctx.value="";nctx.checked=false;ctx.disabled=false;when.value=nowLocal();
+    setMsg("Added to the book.");
+  }catch(err){console.error(err);setMsg("Couldn't save that. Try again in a moment.",true)}
+  finally{save.disabled=false}
+});
+</script>
+</body>
+</html>
