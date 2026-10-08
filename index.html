@@ -127,11 +127,84 @@ textarea:disabled{opacity:.4}
 .gate-card form{border:0;padding:0;gap:10px}
 .gate-card input{font-family:var(--f-mono);letter-spacing:.08em}
 .gate-note{font-size:12px;color:var(--muted);margin:0}
+
+/* ===== Results-site chrome: nav, Hudson skyline banner, meet info, ticker, bib ===== */
+:root{--night:#141a2b;--dusk:#3a1f33;--glow:#c8434f;--river:#0f1424;--win:#ffd88a}
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.sheet{padding-top:0}
+.topnav{position:sticky;top:0;z-index:20;background:#111;color:#f4f4f2;margin:0 -16px;padding:0 16px;display:flex;align-items:center;gap:18px;height:48px;border-bottom:3px solid var(--red)}
+@media (min-width:880px){.topnav{margin:0}}
+.topnav .brand{font-family:var(--f-display);font-weight:900;font-size:22px;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap}
+.topnav .brand i{font-style:normal;color:#ff6b7d}
+.topnav nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.topnav nav button{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:none;border:0;color:#b9bcc2;padding:14px 10px;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-3px}
+.topnav nav button[aria-current="page"]{color:#fff;border-bottom-color:#fff}
+.topnav .spacer{flex:1}
+.topnav .add{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--red);color:#fff;border:0;padding:7px 10px;cursor:pointer;white-space:nowrap}
+@media (max-width:480px){.topnav .brand{display:none}}
+
+.banner{position:relative;margin:0 -16px;height:clamp(230px,40vw,320px);overflow:hidden;background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 55%,var(--glow) 78%,var(--river) 78.2%,var(--river) 100%);color:#fff;isolation:isolate}
+@media (min-width:880px){.banner{margin:0}}
+.sky{position:absolute;inset:0;z-index:-1;width:100%;height:100%}
+.banner-inner{position:absolute;left:0;right:0;bottom:0;padding:16px;background:linear-gradient(0deg,rgba(10,12,22,.92) 30%,rgba(10,12,22,0));display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+@media (min-width:880px){.banner-inner{padding:20px 28px}}
+@media (max-width:480px){.crest,.banner .unofficial{display:none}}
+.crest{width:64px;height:64px;flex:none;background:var(--red);border:3px solid #fff;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:24px;line-height:.85;text-align:center;text-transform:uppercase}
+.banner h1{font-family:var(--f-display);font-weight:900;font-size:clamp(40px,9vw,64px);line-height:.88;margin:0;text-transform:uppercase;letter-spacing:.01em}
+.banner .sub{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d7d9de;margin-top:6px}
+.banner .sub b{color:#fff}
+.banner-title{min-width:0;flex:1}
+
+.meetinfo{background:var(--sheet);border:1px solid var(--rule);border-top:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 -16px}
+@media (min-width:880px){.meetinfo{margin:0}}
+.meetinfo div{padding:10px 14px;border-right:1px solid var(--rule);min-width:0}
+.meetinfo div:last-child{border-right:0}
+.meetinfo span{display:block;font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.meetinfo b{display:block;font-family:var(--f-display);font-weight:700;font-size:22px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.meetinfo{grid-template-columns:repeat(2,minmax(0,1fr))}.meetinfo div:nth-child(2){border-right:0}.meetinfo div:nth-child(-n+2){border-bottom:1px solid var(--rule)}}
+.unofficial{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em}
+
+/* Athletes rankings */
+.arow{display:grid;grid-template-columns:44px minmax(0,1fr) 70px 64px;gap:12px;padding:12px 14px;align-items:center;border-bottom:1px solid var(--rule)}
+.arow:nth-child(even){background:var(--stripe)}
+.arow .nm{font-family:var(--f-mono);font-weight:600;text-transform:uppercase;letter-spacing:.04em;overflow-wrap:anywhere}
+.arow .nm small{display:block;font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arow .n{font-family:var(--f-display);font-weight:700;font-size:24px;text-align:right;font-variant-numeric:tabular-nums}
+.arow .n small{display:block;font-family:var(--f-mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1em}
+.arow .link{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+
+/* Gate on the skyline */
+.gate{position:relative;isolation:isolate;background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 70%,#07090f 100%)}
+.gate .sky{position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;height:min(48vh,420px);z-index:-1}
+.gate-card{box-shadow:8px 8px 0 var(--red)}
+.ticker{background:#111;color:#f4f4f2;overflow:hidden;white-space:nowrap;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin:0 -16px;border-bottom:1px solid #111}
+@media (min-width:880px){.ticker{margin:0}}
+.ticker:empty,.ticker-track:empty{display:none}
+.ticker-track{display:inline-flex;gap:40px;padding:9px 0;padding-left:100%}
+.ticker-track span b{color:#ff6b7d;margin-right:6px}
+@media (prefers-reduced-motion:no-preference){.ticker-track{animation:crawl var(--dur,40s) linear infinite}}
+@media (prefers-reduced-motion:reduce){.ticker-track{padding-left:16px}}
+@keyframes crawl{to{transform:translateX(-100%)}}
+.bib-wrap{margin-top:26px}
+.bib-wrap .label{margin-bottom:8px}
+.bib{position:relative;background:#fff;color:#111;border:2px solid #111;padding:22px 26px 18px;transform:rotate(-1deg);box-shadow:6px 6px 0 var(--red);max-width:620px}
+.bib::before,.bib::after,.bib .pin-b::before,.bib .pin-b::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid #111}
+.bib::before{top:8px;left:8px}.bib::after{top:8px;right:8px}
+.bib .pin-b::before{bottom:8px;left:8px}.bib .pin-b::after{bottom:8px;right:8px}
+.bib-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid #111;padding-bottom:6px}
+.bib-top .r{color:#a32638}
+.bib-num{font-family:var(--f-display);font-weight:900;font-size:clamp(72px,20vw,120px);line-height:.9;color:#a32638;margin-top:6px;font-variant-numeric:tabular-nums}
+.bib-num small{font-size:.3em;color:#111;margin-left:6px;letter-spacing:.04em}
+.bib-quote{font-size:clamp(18px,4.4vw,22px);font-weight:600;line-height:1.3;margin-top:4px;overflow-wrap:anywhere}
+.bib-quote::before{content:"\201C"}.bib-quote::after{content:"\201D"}
+.bib-who{font-family:var(--f-mono);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-top:10px;background:#111;color:#fff;display:inline-block;padding:3px 8px}
+
 @media (prefers-reduced-motion:no-preference){.row{animation:in .2s ease-out}@keyframes in{from{opacity:.4}to{opacity:1}}}
 </style>
 </head>
 <body>
 <section class="gate" id="gate">
+  <svg class="sky" id="gate-sky" aria-hidden="true" preserveAspectRatio="xMidYMax slice"></svg>
   <div class="gate-card">
     <div>
       <h1>Off the<br>Record</h1>
@@ -146,22 +219,49 @@ textarea:disabled{opacity:.4}
         <span class="msg" id="gate-msg" role="status"></span>
       </div>
     </form>
-    <p class="gate-note">Team only. Ask someone on the squad for the password.</p>
   </div>
 </section>
 
 <main class="sheet" id="app" hidden>
-  <header class="mast">
-    <div>
-      <h1>Off the<br>Record</h1>
-      <div class="team">Stevens XC/TF <span>·</span> Distance Squad</div>
-    </div>
-    <div class="stamp">
-      <div class="unofficial">Unofficial results</div>
-      <div><b id="total">—</b> quotes on file</div>
-      <div>Last entry <b id="last">—</b></div>
-    </div>
+  <header class="topnav">
+    <span class="brand">Off the <i>Record</i></span>
+    <nav aria-label="Sections">
+      <button type="button" data-view="latest" aria-current="page">Results</button>
+      <button type="button" data-view="pr">PR Board</button>
+      <button type="button" data-view="athletes">Athletes</button>
+    </nav>
+    <span class="spacer"></span>
+    <button type="button" class="add" id="nav-add">+ Entry</button>
   </header>
+  <section class="banner">
+    <svg class="sky" id="sky" aria-hidden="true" preserveAspectRatio="xMidYMax slice"></svg>
+    <div class="banner-inner">
+      <div class="crest" aria-hidden="true">XC<br>TF</div>
+      <div class="banner-title">
+        <h1>Off the Record</h1>
+        <div class="sub"><b>Stevens XC/TF</b> · Distance Squad · Hoboken, NJ</div>
+      </div>
+      <span class="unofficial">Unofficial results</span>
+    </div>
+  </section>
+  <section class="meetinfo" aria-label="Summary">
+    <div><span>Quotes</span><b id="total">—</b></div>
+    <div><span>Athletes</span><b id="n-athletes">—</b></div>
+    <div><span>Last entry</span><b id="last">—</b></div>
+    <div><span>Season</span><b id="cur-season">—</b></div>
+  </section>
+  <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+
+  <section class="bib-wrap" id="feature" hidden>
+    <p class="label">Quote of the season</p>
+    <div class="bib">
+      <span class="pin-b"></span>
+      <div class="bib-top"><span id="bib-season">Stevens XC/TF</span><span class="r">PR Board #1</span></div>
+      <div class="bib-num"><span id="bib-prs">0</span><small>PRs</small></div>
+      <div class="bib-quote" id="bib-quote"></div>
+      <div class="bib-who" id="bib-who"></div>
+    </div>
+  </section>
 
   <details class="entry" id="entry">
     <summary>Submit an entry <span class="plus">Add</span></summary>
@@ -210,17 +310,14 @@ textarea:disabled{opacity:.4}
   <section class="controls" aria-label="Results">
     <div class="heat">
       <h2 id="heat-title">Latest</h2>
-      <div class="tabs" role="group" aria-label="Sort">
-        <button type="button" id="tab-latest" aria-pressed="true">Latest</button>
-        <button type="button" id="tab-pr" aria-pressed="false">PR Board</button>
-      </div>
+      <span class="label" id="heat-count"></span>
     </div>
     <input type="search" id="q-search" placeholder="Search quotes, athletes, context">
     <div class="filters" id="filters"></div>
   </section>
 
   <section class="results" aria-live="polite">
-    <div class="thead"><span>Pl</span><span>Athlete / Quote</span><span class="r">Time</span><span class="r">PRs</span></div>
+    <div class="thead" id="thead"><span>Pl</span><span>Athlete / Quote</span><span class="r">Time</span><span class="r">PRs</span></div>
     <div id="rows"><div class="empty"><strong>Loading results</strong>Pulling the sheet…</div></div>
   </section>
 
@@ -284,16 +381,71 @@ function renderFilters(){
   filters.replaceChildren(...parts);
 }
 
+// Manhattan skyline from Castle Point, drawn procedurally
+function drawSkyline(svg){
+  const W=1200,H=400,water=312; let seed=7;
+  const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+  let out=`<defs><linearGradient id="refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8434f" stop-opacity=".45"/><stop offset="1" stop-color="#c8434f" stop-opacity="0"/></linearGradient></defs>`;
+  // stars
+  for(let i=0;i<40;i++) out+=`<circle cx="${(rnd()*W).toFixed(0)}" cy="${(rnd()*150).toFixed(0)}" r="${(rnd()*1.2+.3).toFixed(1)}" fill="#fff" opacity="${(rnd()*.5+.2).toFixed(2)}"/>`;
+  // back row (hazy)
+  let x=0, back="", front="", wins="";
+  while(x<W){const w=18+rnd()*34,h=40+rnd()*90;back+=`<rect x="${x.toFixed(0)}" y="${(water-h).toFixed(0)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}"/>`;x+=w+2}
+  out+=`<g fill="#3d2840" opacity=".9">${back}</g>`;
+  // front row with landmarks
+  x=-10;
+  const landmark=(cx)=>{ // tapered supertall with spire
+    return `<path d="M${cx-26} ${water} L${cx-26} ${water-190} L${cx-14} ${water-262} L${cx+14} ${water-262} L${cx+26} ${water-190} L${cx+26} ${water} Z"/><rect x="${cx-1.5}" y="${water-322}" width="3" height="62"/>`};
+  const stepped=(cx)=>`<rect x="${cx-24}" y="${water-150}" width="48" height="150"/><rect x="${cx-16}" y="${water-205}" width="32" height="60"/><rect x="${cx-9}" y="${water-235}" width="18" height="34"/><rect x="${cx-4}" y="${water-262}" width="8" height="30"/><rect x="${cx-1}" y="${water-292}" width="2" height="32"/>`;
+  while(x<W){
+    const w=22+rnd()*40,h=60+rnd()*(x>380&&x<720?150:95);
+    front+=`<rect x="${x.toFixed(0)}" y="${(water-h).toFixed(0)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}"/>`;
+    for(let wy=water-h+8;wy<water-6;wy+=9) for(let wx=x+4;wx<x+w-4;wx+=7) if(rnd()<.18) wins+=`<rect x="${wx.toFixed(0)}" y="${wy.toFixed(0)}" width="2.5" height="3"/>`;
+    x+=w+3;
+  }
+  front+=stepped(540)+landmark(930);
+  out+=`<g fill="#0c0f1c">${front}</g><g fill="#ffd88a" opacity=".75">${wins}</g>`;
+  // river shimmer
+  let sh="";for(let i=0;i<70;i++){const y=water+6+rnd()*80,w=10+rnd()*60;sh+=`<rect x="${(rnd()*W).toFixed(0)}" y="${y.toFixed(0)}" width="${w.toFixed(0)}" height="1.5"/>`}
+  out+=`<rect x="0" y="${water}" width="${W}" height="${H-water}" fill="url(#refl)"/><g fill="#ffd88a" opacity=".35">${sh}</g>`;
+  // Hoboken pier rail foreground
+  out+=`<rect x="0" y="${H-14}" width="${W}" height="14" fill="#07090f"/>`;
+  for(let px=0;px<W;px+=60) out+=`<rect x="${px}" y="${H-44}" width="4" height="34" fill="#07090f"/>`;
+  out+=`<rect x="0" y="${H-44}" width="${W}" height="4" fill="#07090f"/><rect x="0" y="${H-28}" width="${W}" height="2" fill="#07090f"/>`;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.innerHTML=out;
+}
+drawSkyline($("#sky")); drawSkyline($("#gate-sky"));
+
+function renderExtras(){
+  const latest=[...quotes].sort((a,b)=>String(b.when).localeCompare(String(a.when))).slice(0,10);
+  const tk=$("#ticker");
+  tk.replaceChildren(...latest.map(q=>{const sp=el("span");sp.append(el("b",null,q.who),document.createTextNode(`\u201C${q.text}\u201D`));return sp}));
+  tk.style.setProperty("--dur",Math.max(25,latest.reduce((n,q)=>n+q.text.length+q.who.length,0)/4)+"s");
+  const top=[...quotes].filter(q=>(q.prs||0)>0).sort((a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when)))[0];
+  const f=$("#feature");
+  if(!top){f.hidden=true;return}
+  f.hidden=false;
+  $("#bib-prs").textContent=top.prs;
+  $("#bib-quote").textContent=top.text;
+  $("#bib-who").textContent=top.who;
+  $("#bib-season").textContent=(top.season?top.season+" · ":"")+"Stevens XC/TF";
+}
+
 function render(){
+  renderExtras();
   const people=[...new Set(quotes.map(q=>q.who))].sort((a,b)=>a.localeCompare(b));
   names.replaceChildren(...people.map(p=>{const o=document.createElement("option");o.value=p;return o}));
   $("#total").textContent=quotes.length;
   const newest=[...quotes].sort((a,b)=>String(b.when).localeCompare(String(a.when)))[0];
   $("#last").textContent=newest?fmtDate(newest.when):"—";
-  $("#heat-title").textContent=view==="pr"?"PR Board":"Latest";
-  $("#tab-latest").setAttribute("aria-pressed",String(view==="latest"));
-  $("#tab-pr").setAttribute("aria-pressed",String(view==="pr"));
+  $("#heat-title").textContent=view==="pr"?"PR Board":view==="athletes"?"Athletes":"Results";
+  document.querySelectorAll(".topnav nav button").forEach(b=>b.dataset.view===view?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
+  $("#n-athletes").textContent=people.length||"—";
+  $("#cur-season").textContent=seasonFor(new Date());
   renderFilters();
+  $("#thead").hidden=view==="athletes";
+  if(view==="athletes"){renderAthletes();return}
 
   const term=search.value.trim().toLowerCase();
   let shown=quotes.filter(q=>(!fSeason||q.season===fSeason)&&(!fSpot||q.spot===fSpot)&&
@@ -302,6 +454,7 @@ function render(){
     ?(a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when))
     :(a,b)=>String(b.when).localeCompare(String(a.when)));
 
+  $("#heat-count").textContent=shown.length?shown.length+(shown.length===1?" result":" results"):"";
   if(!shown.length){
     const e=el("div","empty");
     e.append(el("strong",null,quotes.length?"No results":"No entries yet"),
@@ -333,6 +486,27 @@ function render(){
   }));
 }
 
+function renderAthletes(){
+  const term=search.value.trim().toLowerCase();
+  const by=new Map();
+  quotes.filter(q=>(!fSeason||q.season===fSeason)&&(!fSpot||q.spot===fSpot)).forEach(q=>{
+    const a=by.get(q.who)||{who:q.who,n:0,prs:0,best:null};
+    a.n++;a.prs+=q.prs||0;if(!a.best||(q.prs||0)>(a.best.prs||0))a.best=q;by.set(q.who,a)});
+  const list=[...by.values()].filter(a=>!term||a.who.toLowerCase().includes(term)).sort((a,b)=>b.n-a.n||b.prs-a.prs||a.who.localeCompare(b.who));
+  $("#heat-count").textContent=list.length?list.length+" athletes":"";
+  if(!list.length){rows.replaceChildren(Object.assign(el("div","empty"),{textContent:"No athletes yet."}));return}
+  rows.replaceChildren(...list.map((a,i)=>{
+    const r=el("div","arow");
+    r.append(el("div","pl",String(i+1)));
+    const nm=el("div","nm");const lk=el("button","link",a.who);lk.type="button";
+    lk.onclick=()=>{view="latest";search.value=a.who;render()};
+    nm.append(lk);if(a.best)nm.append(el("small",null,"\u201C"+a.best.text+"\u201D"));
+    r.append(nm);
+    const n1=el("div","n",String(a.n));n1.append(el("small",null,"QUOTES"));
+    const n2=el("div","n",String(a.prs));n2.append(el("small",null,"PRS"));
+    r.append(n1,n2);return r}));
+}
+
 async function togglePR(q,btn){
   if(!db)return;
   const had=mine.has(q.id);
@@ -343,8 +517,8 @@ async function togglePR(q,btn){
   }catch(e){console.error(e);btn.disabled=false}
 }
 
-$("#tab-latest").onclick=()=>{view="latest";render()};
-$("#tab-pr").onclick=()=>{view="pr";render()};
+document.querySelectorAll(".topnav nav button").forEach(b=>b.onclick=()=>{view=b.dataset.view;render();window.scrollTo({top:0,behavior:"smooth"})});
+$("#nav-add").onclick=()=>{const d=$("#entry");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>txt.focus(),300)};
 search.addEventListener("input",render);
 
 const gate=$("#gate"), appEl=$("#app"), gateForm=$("#gate-form"), gatePass=$("#gate-pass"), gateMsg=$("#gate-msg"), gateGo=$("#gate-go");
