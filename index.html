@@ -103,6 +103,16 @@ textarea:disabled{opacity:.4}
 .pr{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .prbtn{font-family:var(--f-mono);font-size:12px;font-weight:600;border:1.5px solid var(--red);background:transparent;color:var(--red);padding:4px 8px;cursor:pointer;border-radius:0;letter-spacing:.06em;font-variant-numeric:tabular-nums;min-width:56px}
 .prbtn[aria-pressed="true"]{background:var(--red);color:var(--red-ink)}
+.pr{gap:5px}
+.dnfbtn{font-family:var(--f-mono);font-size:11px;font-weight:600;border:1.5px dashed var(--muted);background:transparent;color:var(--muted);padding:3px 8px;cursor:pointer;border-radius:0;letter-spacing:.06em;font-variant-numeric:tabular-nums;min-width:56px}
+.dnfbtn:hover{color:var(--ink);border-color:var(--ink)}
+.dnfbtn[aria-pressed="true"]{background:var(--muted);color:var(--sheet);border-style:solid}
+@media (max-width:560px){.row .pr{flex-direction:row}}
+.row.dnfd .pl{font-size:20px;color:var(--muted);letter-spacing:.02em}
+.row.dnfd .quote{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--muted);text-decoration-thickness:1.5px}
+.row.dnfd .athlete{color:var(--muted)}
+.dnf-wrap{position:relative;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.dnf-stamp{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);border:2px solid var(--ink);padding:2px 8px;transform:rotate(-3deg);background:var(--sheet)}
 @media (max-width:560px){
   .thead{display:none}
   .row{grid-template-columns:36px minmax(0,1fr);grid-template-areas:"pl body" "pl meta";gap:8px 12px}
@@ -379,7 +389,7 @@ body.dq-mode .row .pl{color:var(--red)}
     <div id="rows"><div class="empty"><strong>Loading results</strong>Pulling the sheet…</div></div>
   </section>
 
-  <p class="legend"><b>NC</b> — better with no context &nbsp;·&nbsp; <b>PR</b> — tap to give a quote a PR, tap again to take it back &nbsp;·&nbsp; Corrections go through Colin.</p>
+  <p class="legend"><b>NC</b> — better with no context &nbsp;·&nbsp; <b>PR</b> — this one hit &nbsp;·&nbsp; <b>DNF</b> — did not finish (the joke). 3+ DNFs and more DNFs than PRs and it's officially DNF'd &nbsp;·&nbsp; Corrections go through Colin.</p>
 </main>
 
 <script type="module">
@@ -413,6 +423,10 @@ let dqQuotes=[], dqCol=null, secretMode=false;
 let quotes=[], view="latest", fSeason=null, fSpot=null, db=null, col=null;
 let mine=new Set(); try{mine=new Set(JSON.parse(localStorage.getItem("otr-prs")||"[]"))}catch(e){}
 const saveMine=()=>{try{localStorage.setItem("otr-prs",JSON.stringify([...mine]))}catch(e){}};
+let mineDnf=new Set(); try{mineDnf=new Set(JSON.parse(localStorage.getItem("otr-dnfs")||"[]"))}catch(e){}
+const saveMineDnf=()=>{try{localStorage.setItem("otr-dnfs",JSON.stringify([...mineDnf]))}catch(e){}};
+const DNF_LINE=3; // DNFs needed (and more DNFs than PRs) to officially DNF a quote
+const isDnfd=q=>(q.dnfs||0)>=DNF_LINE&&(q.dnfs||0)>(q.prs||0);
 
 const pad=n=>String(n).padStart(2,"0");
 const nowLocal=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`};
@@ -540,7 +554,7 @@ function render(){
   let shown=src.filter(q=>(!fSeason||q.season===fSeason)&&(!fSpot||q.spot===fSpot)&&
     (!term||[q.text,q.who,q.context,q.spot].join(" ").toLowerCase().includes(term)));
   shown.sort(view==="pr"
-    ?(a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when))
+    ?(a,b)=>(isDnfd(a)-isDnfd(b))||(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when))
     :(a,b)=>String(b.when).localeCompare(String(a.when)));
 
   $("#heat-count").textContent=shown.length?shown.length+(shown.length===1?" result":" results"):"";
@@ -551,10 +565,13 @@ function render(){
     rows.replaceChildren(e);return;
   }
   rows.replaceChildren(...shown.map((q,i)=>{
-    const r=el("article","row"+(view==="pr"&&i<3&&(q.prs||0)>0?" top":"")+(q._dq?" dq":""));
-    r.append(el("div","pl",String(i+1)));
+    const dnfd=isDnfd(q);
+    const r=el("article","row"+(view==="pr"&&i<3&&(q.prs||0)>0&&!dnfd?" top":"")+(q._dq?" dq":"")+(dnfd?" dnfd":""));
+    r.append(el("div","pl",dnfd?"DNF":String(i+1)));
     const b=el("div","body");
-    b.append(el("div","athlete",q.who),el("div","quote",q.text));
+    b.append(el("div","athlete",q.who));
+    const qt=el("div","quote",q.text);
+    if(dnfd){const wrap=el("div","dnf-wrap");wrap.append(qt,el("span","dnf-stamp","DNF · Did not finish the joke"));b.append(wrap)}else b.append(qt);
     const tags=el("div","tags");
     if(q.season)tags.append(el("span","tag season",q.season));
     if(q.spot)tags.append(el("span","tag",q.spot));
@@ -570,8 +587,13 @@ function render(){
     const btn=el("button","prbtn",`PR ${q.prs||0}`);btn.type="button";
     btn.setAttribute("aria-pressed",String(mine.has(q.id)));
     btn.setAttribute("aria-label",(mine.has(q.id)?"Remove your PR from":"Give a PR to")+" this quote");
-    btn.onclick=()=>togglePR(q,btn);
-    pr.append(btn);
+    btn.onclick=()=>toggleVote(q,btn,"prs",mine,saveMine);
+    const dbtn=el("button","dnfbtn",`DNF ${q.dnfs||0}`);dbtn.type="button";
+    dbtn.setAttribute("aria-pressed",String(mineDnf.has(q.id)));
+    dbtn.setAttribute("aria-label",(mineDnf.has(q.id)?"Take back your DNF on":"DNF")+" this quote");
+    dbtn.title="Did not finish: this quote didn't land";
+    dbtn.onclick=()=>toggleVote(q,dbtn,"dnfs",mineDnf,saveMineDnf);
+    pr.append(btn,dbtn);
     meta.append(t,pr);r.append(meta);
     return r;
   }));
@@ -598,13 +620,13 @@ function renderAthletes(){
     r.append(n1,n2);return r}));
 }
 
-async function togglePR(q,btn){
+async function toggleVote(q,btn,field,set,save){
   if(!db)return;
-  const had=mine.has(q.id);
+  const had=set.has(q.id);
   btn.disabled=true;
   try{
-    await updateDoc(doc(db,q._dq?dqCol.path:"quotes",q.id),{prs:increment(had?-1:1)});
-    had?mine.delete(q.id):mine.add(q.id);saveMine();render();
+    await updateDoc(doc(db,q._dq?dqCol.path:"quotes",q.id),{[field]:increment(had?-1:1)});
+    had?set.delete(q.id):set.add(q.id);save();render();
   }catch(e){console.error(e);btn.disabled=false}
 }
 
@@ -690,7 +712,7 @@ form.addEventListener("submit",async e=>{
   if(!col){setMsg("Not connected to the database.",true);return}
   let spot=picked(spotSeg);if(spot==="__other")spot=spotOther.value.trim();
   const data={text:txt.value.trim(),who:who.value.trim(),when:when.value,season:picked(seasonSeg)||seasonFor(new Date()),
-    spot:spot||"",noContext:nctx.checked,context:nctx.checked?"":ctx.value.trim(),prs:0,createdAt:serverTimestamp()};
+    spot:spot||"",noContext:nctx.checked,context:nctx.checked?"":ctx.value.trim(),prs:0,dnfs:0,createdAt:serverTimestamp()};
   if(!data.text||!data.who||!data.when){setMsg("Fill in the quote, athlete, and when.",true);return}
   save.disabled=true;setMsg("Posting…");
   const toDq=secretMode&&$("#q-secret").checked;
