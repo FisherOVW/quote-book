@@ -142,7 +142,7 @@ textarea:disabled{opacity:.4}
       </label>
       <div class="actions">
         <button class="btn" type="submit" id="gate-go">Enter</button>
-        <span class="msg" id="gate-msg" role="status">Checking…</span>
+        <span class="msg" id="gate-msg" role="status"></span>
       </div>
     </form>
     <p class="gate-note">Team only. Ask someone on the squad for the password.</p>
@@ -240,8 +240,7 @@ const firebaseConfig = {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, signInAnonymously, onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
 const $=s=>document.querySelector(s);
 const form=$("#compose"), txt=$("#q-text"), who=$("#q-who"), when=$("#q-when"), nctx=$("#q-nctx"), ctx=$("#q-ctx"),
@@ -344,9 +343,9 @@ search.addEventListener("input",render);
 
 const app=initializeApp(firebaseConfig);
 db=getFirestore(app);
-const auth=getAuth(app);
 const gate=$("#gate"), appEl=$("#app"), gateForm=$("#gate-form"), gatePass=$("#gate-pass"), gateMsg=$("#gate-msg"), gateGo=$("#gate-go");
 let started=false;
+const PASS_HASH="c1bbfe449f1639e45aa3b4f75eb861e608b9e466b61da04cc256dad0e86775cb"; // sha256 of the team password
 
 function unlock(){
   if(started)return; started=true;
@@ -356,30 +355,21 @@ function unlock(){
     err=>{console.error(err);rows.replaceChildren(Object.assign(el("div","empty"),{textContent:"Couldn't load results. Check the Firestore rules."}))});
 }
 
-onAuthStateChanged(auth,async user=>{
-  if(!user){gateMsg.textContent="";gatePass.focus();return}
-  try{
-    const m=await getDoc(doc(db,"members",user.uid));
-    if(m.exists()){unlock();return}
-  }catch(e){console.error(e)}
-  gateMsg.textContent="";gatePass.focus();
-});
+async function sha256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+
+let remembered=false; try{remembered=localStorage.getItem("otr-ok")===PASS_HASH}catch(e){}
+if(remembered) unlock(); else gatePass.focus();
 
 gateForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const pass=gatePass.value.trim().toLowerCase();
   if(!pass)return;
-  gateGo.disabled=true; gateMsg.className="msg"; gateMsg.textContent="Checking…";
-  try{
-    const cred=auth.currentUser?{user:auth.currentUser}:await signInAnonymously(auth);
-    await setDoc(doc(db,"members",cred.user.uid),{pass,at:serverTimestamp()});
+  if(await sha256(pass)===PASS_HASH){
+    try{localStorage.setItem("otr-ok",PASS_HASH)}catch(e){}
     unlock();
-  }catch(err){
-    console.error(err);
-    gateMsg.className="msg err";
-    gateMsg.textContent=err&&err.code==="permission-denied"?"Wrong password.":"Couldn't check the password. Try again.";
-    gatePass.select();
-  }finally{gateGo.disabled=false}
+  }else{
+    gateMsg.className="msg err"; gateMsg.textContent="Wrong password."; gatePass.select();
+  }
 });
 
 form.addEventListener("submit",async e=>{
