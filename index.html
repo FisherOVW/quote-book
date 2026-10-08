@@ -173,6 +173,16 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .arow .n small{display:block;font-family:var(--f-mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1em}
 .arow .link{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
 
+/* DQ'd (secret) */
+.topnav nav button.dq{color:#ff6b7d}
+.topnav nav button.dq[aria-current="page"]{color:#fff;border-bottom-color:#ff6b7d}
+.dq-banner{margin-top:16px;background:#111;color:#f4f4f2;border-left:6px solid var(--red);padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.dq-banner b{font-family:var(--f-display);font-weight:900;font-size:28px;text-transform:uppercase;line-height:1}
+.dq-banner span{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#b9bcc2}
+.row.dq .pl{color:var(--red);text-decoration:line-through;text-decoration-thickness:3px}
+.tag.dqt{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.secret-check{border:1px dashed var(--red);padding:8px 10px}
+
 /* Gate on the skyline */
 .gate{position:relative;isolation:isolate;background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 70%,#07090f 100%)}
 .gate .sky{position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;height:min(48vh,420px);z-index:-1}
@@ -229,6 +239,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
       <button type="button" data-view="latest" aria-current="page">Results</button>
       <button type="button" data-view="pr">PR Board</button>
       <button type="button" data-view="athletes">Athletes</button>
+      <button type="button" data-view="dq" class="dq" id="nav-dq" hidden>DQ'd</button>
     </nav>
     <span class="spacer"></span>
     <button type="button" class="add" id="nav-add">+ Entry</button>
@@ -296,6 +307,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
         </div>
         <input type="text" id="q-spot-other" maxlength="40" placeholder="Where was it?" hidden>
       </div>
+      <label class="check secret-check" for="q-secret" id="secret-wrap" hidden><input type="checkbox" id="q-secret"> Post to <b>DQ'd</b> (secret, only the inner circle sees it)</label>
       <label class="check" for="q-nctx"><input type="checkbox" id="q-nctx"> <code>NC</code> Better with no context</label>
       <label class="field" for="q-ctx"><span>Context (optional)</span>
         <textarea id="q-ctx" maxlength="1000" placeholder="Mile 9 of the long run, everyone was delirious…"></textarea>
@@ -306,6 +318,8 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
       </div>
     </form>
   </details>
+
+  <div class="dq-banner" id="dq-banner" hidden><b>DQ'd</b><span>Disqualified from the public record · eyes only</span></div>
 
   <section class="controls" aria-label="Results">
     <div class="heat">
@@ -351,6 +365,7 @@ const form=$("#compose"), txt=$("#q-text"), who=$("#q-who"), when=$("#q-when"), 
       seasonSeg=$("#q-season"), spotSeg=$("#q-spot"), spotOther=$("#q-spot-other");
 
 const SEASONS=["XC","Indoor","Outdoor"];
+let dqQuotes=[], dqCol=null, secretMode=false;
 let quotes=[], view="latest", fSeason=null, fSpot=null, db=null, col=null;
 let mine=new Set(); try{mine=new Set(JSON.parse(localStorage.getItem("otr-prs")||"[]"))}catch(e){}
 const saveMine=()=>{try{localStorage.setItem("otr-prs",JSON.stringify([...mine]))}catch(e){}};
@@ -374,7 +389,7 @@ function setMsg(t,err){msg.textContent=t;msg.className="msg"+(err?" err":"")}
 
 function chip(label,active,on){const b=el("button","chip",label);b.type="button";b.setAttribute("aria-pressed",String(active));b.onclick=on;return b}
 function renderFilters(){
-  const spots=[...new Set(quotes.map(q=>q.spot).filter(Boolean))].sort();
+  const spots=[...new Set((view==="dq"?dqQuotes:quotes).map(q=>q.spot).filter(Boolean))].sort();
   const parts=[chip("All seasons",fSeason===null,()=>{fSeason=null;render()}),
     ...SEASONS.map(s=>chip(s,fSeason===s,()=>{fSeason=fSeason===s?null:s;render()}))];
   if(spots.length){parts.push(el("span","sep"));parts.push(...spots.map(s=>chip(s,fSpot===s,()=>{fSpot=fSpot===s?null:s;render()})))}
@@ -439,7 +454,8 @@ function render(){
   $("#total").textContent=quotes.length;
   const newest=[...quotes].sort((a,b)=>String(b.when).localeCompare(String(a.when)))[0];
   $("#last").textContent=newest?fmtDate(newest.when):"—";
-  $("#heat-title").textContent=view==="pr"?"PR Board":view==="athletes"?"Athletes":"Results";
+  $("#heat-title").textContent=view==="pr"?"PR Board":view==="athletes"?"Athletes":view==="dq"?"DQ'd":"Results";
+  $("#dq-banner").hidden=view!=="dq";
   document.querySelectorAll(".topnav nav button").forEach(b=>b.dataset.view===view?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
   $("#n-athletes").textContent=people.length||"—";
   $("#cur-season").textContent=seasonFor(new Date());
@@ -448,7 +464,8 @@ function render(){
   if(view==="athletes"){renderAthletes();return}
 
   const term=search.value.trim().toLowerCase();
-  let shown=quotes.filter(q=>(!fSeason||q.season===fSeason)&&(!fSpot||q.spot===fSpot)&&
+  const src=view==="dq"?dqQuotes:quotes;
+  let shown=src.filter(q=>(!fSeason||q.season===fSeason)&&(!fSpot||q.spot===fSpot)&&
     (!term||[q.text,q.who,q.context,q.spot].join(" ").toLowerCase().includes(term)));
   shown.sort(view==="pr"
     ?(a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when))
@@ -457,12 +474,12 @@ function render(){
   $("#heat-count").textContent=shown.length?shown.length+(shown.length===1?" result":" results"):"";
   if(!shown.length){
     const e=el("div","empty");
-    e.append(el("strong",null,quotes.length?"No results":"No entries yet"),
-      document.createTextNode(quotes.length?"Nothing matches those filters.":"Hit Submit an entry and post the first one."));
+    e.append(el("strong",null,src.length?"No results":view==="dq"?"Nothing DQ'd yet":"No entries yet"),
+      document.createTextNode(src.length?"Nothing matches those filters.":view==="dq"?"Post a quote with the DQ'd box checked and it lands here.":"Hit Submit an entry and post the first one."));
     rows.replaceChildren(e);return;
   }
   rows.replaceChildren(...shown.map((q,i)=>{
-    const r=el("article","row"+(view==="pr"&&i<3&&(q.prs||0)>0?" top":""));
+    const r=el("article","row"+(view==="pr"&&i<3&&(q.prs||0)>0?" top":"")+(q._dq?" dq":""));
     r.append(el("div","pl",String(i+1)));
     const b=el("div","body");
     b.append(el("div","athlete",q.who),el("div","quote",q.text));
@@ -470,6 +487,7 @@ function render(){
     if(q.season)tags.append(el("span","tag season",q.season));
     if(q.spot)tags.append(el("span","tag",q.spot));
     if(q.noContext)tags.append(el("span","tag nc","NC"));
+    if(q._dq)tags.append(el("span","tag dqt","DQ"));
     if(tags.childNodes.length)b.append(tags);
     if(!q.noContext&&q.context)b.append(el("div","ctx",q.context));
     r.append(b);
@@ -512,7 +530,7 @@ async function togglePR(q,btn){
   const had=mine.has(q.id);
   btn.disabled=true;
   try{
-    await updateDoc(doc(db,"quotes",q.id),{prs:increment(had?-1:1)});
+    await updateDoc(doc(db,q._dq?dqCol.path:"quotes",q.id),{prs:increment(had?-1:1)});
     had?mine.delete(q.id):mine.add(q.id);saveMine();render();
   }catch(e){console.error(e);btn.disabled=false}
 }
@@ -522,7 +540,8 @@ $("#nav-add").onclick=()=>{const d=$("#entry");d.open=true;d.scrollIntoView({beh
 search.addEventListener("input",render);
 
 const gate=$("#gate"), appEl=$("#app"), gateForm=$("#gate-form"), gatePass=$("#gate-pass"), gateMsg=$("#gate-msg"), gateGo=$("#gate-go");
-let started=false;
+let started=false, dqName=null;
+const SECRET_HASH="053dce785a6b2ef5b92cfc4934236b772e04b110fcd4823da5777e90123d8bcc"; // sha256 of the DQ'd password
 const PASS_HASH="c1bbfe449f1639e45aa3b4f75eb861e608b9e466b61da04cc256dad0e86775cb"; // sha256 of the team password
 
 async function unlock(){
@@ -534,6 +553,13 @@ async function unlock(){
     col=collection(db,"quotes");
     onSnapshot(col,snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
       err=>{console.error(err);showLoadError("Couldn't load results. Check the Firestore rules.")});
+    if(dqName){
+      secretMode=true;
+      $("#nav-dq").hidden=false; $("#secret-wrap").hidden=false;
+      dqCol=collection(db,dqName);
+      onSnapshot(dqCol,snap=>{dqQuotes=snap.docs.map(d=>({id:d.id,_dq:true,...d.data()}));render()},
+        err=>console.error(err));
+    }
   }catch(e){
     console.error(e);
     showLoadError("Can't reach the database. If you use an ad blocker, turn it off for this site and reload.");
@@ -543,14 +569,23 @@ function showLoadError(t){const e=el("div","empty");e.append(el("strong",null,"N
 
 async function sha256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 
-let remembered=false; try{remembered=localStorage.getItem("otr-ok")===PASS_HASH}catch(e){}
-if(remembered) unlock(); else gatePass.focus();
+async function dqFor(pass){return "dq-"+(await sha256("dq:"+pass)).slice(0,24)}
+let saved=null; try{saved=localStorage.getItem("otr-ok")}catch(e){}
+let savedDq=null; try{savedDq=localStorage.getItem("otr-dq")}catch(e){}
+if(saved===SECRET_HASH&&savedDq){dqName=savedDq;unlock()}
+else if(saved===PASS_HASH) unlock();
+else gatePass.focus();
 
 gateForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const pass=gatePass.value.trim().toLowerCase();
   if(!pass)return;
-  if(await sha256(pass)===PASS_HASH){
+  const h=await sha256(pass);
+  if(h===SECRET_HASH){
+    dqName=await dqFor(pass);
+    try{localStorage.setItem("otr-ok",SECRET_HASH);localStorage.setItem("otr-dq",dqName)}catch(e){}
+    unlock();
+  }else if(h===PASS_HASH){
     try{localStorage.setItem("otr-ok",PASS_HASH)}catch(e){}
     unlock();
   }else{
@@ -566,7 +601,8 @@ form.addEventListener("submit",async e=>{
     spot:spot||"",noContext:nctx.checked,context:nctx.checked?"":ctx.value.trim(),prs:0,createdAt:serverTimestamp()};
   if(!data.text||!data.who||!data.when){setMsg("Fill in the quote, athlete, and when.",true);return}
   save.disabled=true;setMsg("Posting…");
-  try{await addDoc(col,data);resetForm();setMsg("Posted. It's on the sheet.");view="latest";render()}
+  const toDq=secretMode&&$("#q-secret").checked;
+  try{await addDoc(toDq?dqCol:col,data);resetForm();$("#q-secret").checked=false;setMsg(toDq?"Posted to DQ'd.":"Posted. It's on the sheet.");view=toDq?"dq":"latest";render()}
   catch(err){console.error(err);setMsg("Couldn't post that. Make sure the Firestore rules are updated.",true)}
   finally{save.disabled=false}
 });
