@@ -22,6 +22,7 @@
   --red:#d9415a; --red-ink:#ffffff; --gray:#9a9ea4; --stripe:#212327; color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0}
+[hidden]{display:none!important}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
 .sheet{max-width:860px;margin:0 auto;padding:28px 16px 72px}
 
@@ -237,10 +238,15 @@ const firebaseConfig = {
   measurementId: "G-43BGEJN6TY"
 };
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+let initializeApp,getFirestore,collection,addDoc,onSnapshot,doc,updateDoc,increment,serverTimestamp;
+async function loadFirebase(){
+  const [a,f]=await Promise.all([
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")
+  ]);
+  ({initializeApp}=a);
+  ({getFirestore,collection,addDoc,onSnapshot,doc,updateDoc,increment,serverTimestamp}=f);
+}
 
 const $=s=>document.querySelector(s);
 const form=$("#compose"), txt=$("#q-text"), who=$("#q-who"), when=$("#q-when"), nctx=$("#q-nctx"), ctx=$("#q-ctx"),
@@ -341,19 +347,25 @@ $("#tab-latest").onclick=()=>{view="latest";render()};
 $("#tab-pr").onclick=()=>{view="pr";render()};
 search.addEventListener("input",render);
 
-const app=initializeApp(firebaseConfig);
-db=getFirestore(app);
 const gate=$("#gate"), appEl=$("#app"), gateForm=$("#gate-form"), gatePass=$("#gate-pass"), gateMsg=$("#gate-msg"), gateGo=$("#gate-go");
 let started=false;
 const PASS_HASH="c1bbfe449f1639e45aa3b4f75eb861e608b9e466b61da04cc256dad0e86775cb"; // sha256 of the team password
 
-function unlock(){
+async function unlock(){
   if(started)return; started=true;
   gate.hidden=true; appEl.hidden=false;
-  col=collection(db,"quotes");
-  onSnapshot(col,snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
-    err=>{console.error(err);rows.replaceChildren(Object.assign(el("div","empty"),{textContent:"Couldn't load results. Check the Firestore rules."}))});
+  try{
+    await loadFirebase();
+    db=getFirestore(initializeApp(firebaseConfig));
+    col=collection(db,"quotes");
+    onSnapshot(col,snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
+      err=>{console.error(err);showLoadError("Couldn't load results. Check the Firestore rules.")});
+  }catch(e){
+    console.error(e);
+    showLoadError("Can't reach the database. If you use an ad blocker, turn it off for this site and reload.");
+  }
 }
+function showLoadError(t){const e=el("div","empty");e.append(el("strong",null,"No connection"),document.createTextNode(t));rows.replaceChildren(e)}
 
 async function sha256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 
