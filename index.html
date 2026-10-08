@@ -3,204 +3,395 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Quote Book</title>
+<title>Off the Record · Stevens XC/TF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: single column notebook — compose card up top, quotes as torn-out entries below, highlighter on speaker names */
+/* Layout: a printed meet results sheet — masthead, entry form as the "entry card", quotes as numbered result rows */
 :root{
-  --paper:#eef1f6; --sheet:#ffffff; --ink:#1b2340; --muted:#5d6584; --line:#d6dbe8;
-  --accent:#2f4bd6; --hi:#ffe45c; --hi-ink:#1b2340; --danger:#c2362b;
-  --f-quote:"Young Serif", Georgia, "Times New Roman", serif;
-  --f-body:"Figtree", system-ui, -apple-system, Segoe UI, sans-serif;
-  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --paper:#f4f4f2; --sheet:#ffffff; --ink:#1d1f22; --muted:#6b6f75; --rule:#cfd1d4; --rule-strong:#1d1f22;
+  --red:#a32638; --red-ink:#ffffff; --gray:#8a8d91; --stripe:#f7f7f6;
+  --f-display:"Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#11141f; --sheet:#1a1f2e; --ink:#e7eaf5; --muted:#9aa2c0; --line:#2c3347;
-  --accent:#8ea0ff; --hi:#e6c731; --hi-ink:#151a2b; --danger:#ff7b6e; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#11141f; --sheet:#1a1f2e; --ink:#e7eaf5; --muted:#9aa2c0; --line:#2c3347;
-  --accent:#8ea0ff; --hi:#e6c731; --hi-ink:#151a2b; --danger:#ff7b6e; color-scheme:dark}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#141517; --sheet:#1c1e21; --ink:#ececec; --muted:#9a9ea4; --rule:#34373c; --rule-strong:#ececec;
+  --red:#d9415a; --red-ink:#ffffff; --gray:#9a9ea4; --stripe:#212327; color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
-.wrap{max-width:720px;margin:0 auto;padding:28px 16px 64px;display:flex;flex-direction:column;gap:22px}
-header h1{font-family:var(--f-quote);font-weight:400;font-size:clamp(34px,8vw,52px);line-height:1;margin:0;letter-spacing:-.01em;text-wrap:balance}
-header h1 span{background:linear-gradient(transparent 55%,var(--hi) 55%,var(--hi) 92%,transparent 92%);color:inherit}
-header p{margin:8px 0 0;color:var(--muted)}
-.count{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+.sheet{max-width:860px;margin:0 auto;padding:28px 16px 72px}
 
-.compose{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
-.compose h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:520px){.row{grid-template-columns:1fr}}
-label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;min-width:0}
-input[type=text],input[type=datetime-local],input[type=search],textarea{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;min-width:0}
-textarea{resize:vertical;min-height:70px}
-#q-text{font-family:var(--f-quote);font-size:18px;min-height:84px}
-input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.check{flex-direction:row;align-items:center;gap:8px;font-weight:500;cursor:pointer}
-.check input{width:18px;height:18px;accent-color:var(--accent)}
-textarea:disabled{opacity:.45}
+/* Masthead */
+.mast{border-top:6px solid var(--red);border-bottom:2px solid var(--rule-strong);padding:14px 0 12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.mast h1{font-family:var(--f-display);font-weight:900;font-size:clamp(46px,12vw,84px);line-height:.85;letter-spacing:.01em;margin:0;text-transform:uppercase}
+.mast .team{font-family:var(--f-mono);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+.mast .team span{color:var(--red)}
+.mast .stamp{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:right;line-height:1.6;text-transform:uppercase;letter-spacing:.05em}
+.stamp b{color:var(--ink);font-weight:600}
+.unofficial{display:inline-block;border:1.5px solid var(--red);color:var(--red);padding:1px 6px;font-weight:600;transform:rotate(-2deg);margin-bottom:4px}
+
+/* Section labels */
+.label{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
+
+/* Entry card */
+details.entry{margin-top:20px;background:var(--sheet);border:1px solid var(--rule)}
+details.entry summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;font-family:var(--f-display);font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+details.entry summary::-webkit-details-marker{display:none}
+details.entry summary .plus{font-family:var(--f-mono);font-size:13px;background:var(--red);color:var(--red-ink);padding:4px 10px;letter-spacing:.06em}
+details[open].entry summary .plus::after{content:" ×"}
+details:not([open]).entry summary .plus::after{content:" +"}
+form{border-top:1px dashed var(--rule);padding:16px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field > span{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+input[type=text],input[type=datetime-local],input[type=search],textarea{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:0;padding:10px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:64px}
+#q-text{font-size:18px;min-height:80px}
+input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.chip{font-family:var(--f-mono);font-size:12px;font-weight:500;background:transparent;color:var(--ink);border:1px solid var(--rule);padding:6px 10px;cursor:pointer;border-radius:0;letter-spacing:.02em}
+.seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+#q-spot-other{margin-top:6px}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--red)}
+.check code{font-family:var(--f-mono);font-size:11px;font-weight:600;border:1px solid var(--ink);padding:0 4px}
+textarea:disabled{opacity:.4}
 .actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-button{font:inherit;cursor:pointer;border-radius:9px}
-.btn{background:var(--accent);color:var(--sheet);border:0;padding:10px 18px;font-weight:700}
+.btn{font-family:var(--f-display);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.03em;background:var(--red);color:var(--red-ink);border:0;padding:8px 22px;cursor:pointer;border-radius:0}
 .btn:disabled{opacity:.5;cursor:default}
 .msg{font-size:13px;color:var(--muted)}
-.msg.err{color:var(--danger)}
+.msg.err{color:var(--red)}
 
-.tools{display:flex;flex-direction:column;gap:10px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:transparent;border:1px solid var(--line);color:var(--ink);padding:5px 11px;font-size:13px;border-radius:999px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+/* Results controls */
+.controls{margin-top:28px;display:flex;flex-direction:column;gap:10px}
+.heat{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;border-bottom:2px solid var(--rule-strong);padding-bottom:6px}
+.heat h2{font-family:var(--f-display);font-weight:900;font-size:30px;text-transform:uppercase;margin:0;letter-spacing:.01em}
+.tabs{display:flex;gap:0}
+.tabs button{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--rule-strong);color:var(--ink);padding:6px 12px;cursor:pointer;border-radius:0}
+.tabs button + button{border-left:0}
+.tabs button[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--red-ink)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.filters .sep{width:1px;height:20px;background:var(--rule);margin:0 4px}
 
-.list{display:flex;flex-direction:column;gap:14px}
-.q{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:10px}
-.q blockquote{margin:0;font-family:var(--f-quote);font-size:clamp(19px,4.6vw,23px);line-height:1.35;overflow-wrap:anywhere}
-.q blockquote::before{content:"\201C"}
-.q blockquote::after{content:"\201D"}
-.who{font-weight:700;font-size:15px}
-.who mark{background:linear-gradient(transparent 50%,var(--hi) 50%);color:var(--ink);padding:0 2px}
-.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
-.ctx{border-left:3px solid var(--line);padding:2px 0 2px 12px;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
-.ctx b{color:var(--ink);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.08em;display:block}
-.nctx{display:inline-block;align-self:flex-start;background:var(--hi);color:var(--hi-ink);font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;transform:rotate(-1.5deg)}
-.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px;font-size:12px;color:var(--muted)}
-.del{background:none;border:0;color:var(--danger);font-size:12px;padding:4px 6px}
-.empty{text-align:center;color:var(--muted);padding:36px 16px;border:1px dashed var(--line);border-radius:14px}
-.empty strong{display:block;font-family:var(--f-quote);font-weight:400;color:var(--ink);font-size:22px;margin-bottom:4px}
-@media (prefers-reduced-motion:no-preference){.q{animation:in .25s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+/* Results table */
+.results{background:var(--sheet);border:1px solid var(--rule);margin-top:4px}
+.thead,.row{display:grid;grid-template-columns:44px minmax(0,1fr) 112px 64px;gap:12px;padding:12px 14px;align-items:start}
+.thead{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule-strong);padding-block:8px}
+.thead .r,.row .r{text-align:right}
+.row{border-bottom:1px solid var(--rule)}
+.row:nth-child(even){background:var(--stripe)}
+.row:last-child{border-bottom:0}
+.pl{font-family:var(--f-display);font-weight:900;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.row.top .pl{color:var(--red)}
+.body{min-width:0;display:flex;flex-direction:column;gap:5px}
+.quote{font-size:17px;line-height:1.4;font-weight:500;overflow-wrap:anywhere}
+.quote::before{content:"\201C"}.quote::after{content:"\201D"}
+.athlete{font-family:var(--f-mono);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.tags{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tag{border:1px solid var(--rule);padding:1px 6px}
+.tag.season{border-color:var(--gray)}
+.tag.nc{border-color:var(--ink);color:var(--ink);font-weight:600}
+.ctx{font-size:13px;color:var(--muted);border-left:2px solid var(--rule);padding-left:10px;overflow-wrap:anywhere}
+.time{font-family:var(--f-mono);font-size:12px;line-height:1.5;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.time b{color:var(--ink);font-weight:600;display:block}
+.pr{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.prbtn{font-family:var(--f-mono);font-size:12px;font-weight:600;border:1.5px solid var(--red);background:transparent;color:var(--red);padding:4px 8px;cursor:pointer;border-radius:0;letter-spacing:.06em;font-variant-numeric:tabular-nums;min-width:56px}
+.prbtn[aria-pressed="true"]{background:var(--red);color:var(--red-ink)}
+@media (max-width:560px){
+  .thead{display:none}
+  .row{grid-template-columns:36px minmax(0,1fr);grid-template-areas:"pl body" "pl meta";gap:8px 12px}
+  .row .pl{grid-area:pl;font-size:26px}
+  .row .body{grid-area:body}
+  .row .meta{grid-area:meta;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .row .time{text-align:left}
+  .row .time b{display:inline;margin-right:6px}
+}
+@media (min-width:561px){.row .meta{display:contents}}
+.empty{padding:36px 16px;text-align:center;color:var(--muted)}
+.empty strong{display:block;font-family:var(--f-display);font-size:26px;text-transform:uppercase;color:var(--ink)}
+
+.legend{margin-top:14px;font-family:var(--f-mono);font-size:11px;color:var(--muted);line-height:1.7;letter-spacing:.03em}
+.legend b{color:var(--ink)}
+/* Password gate */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.gate-card{width:100%;max-width:400px;background:var(--sheet);border:1px solid var(--rule);border-top:6px solid var(--red);padding:22px 20px;display:flex;flex-direction:column;gap:14px}
+.gate-card h1{font-family:var(--f-display);font-weight:900;font-size:56px;line-height:.85;text-transform:uppercase;margin:0}
+.gate-card .team{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.gate-card .team span{color:var(--red)}
+.gate-card form{border:0;padding:0;gap:10px}
+.gate-card input{font-family:var(--f-mono);letter-spacing:.08em}
+.gate-note{font-size:12px;color:var(--muted);margin:0}
+@media (prefers-reduced-motion:no-preference){.row{animation:in .2s ease-out}@keyframes in{from{opacity:.4}to{opacity:1}}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>The <span>Quote</span> Book</h1>
-    <p>Things the group said that deserve to live forever.</p>
+<section class="gate" id="gate">
+  <div class="gate-card">
+    <div>
+      <h1>Off the<br>Record</h1>
+      <div class="team">Stevens XC/TF <span>·</span> Distance Squad</div>
+    </div>
+    <form id="gate-form" autocomplete="off">
+      <label class="field" for="gate-pass"><span>Team password</span>
+        <input type="password" id="gate-pass" required autocomplete="current-password">
+      </label>
+      <div class="actions">
+        <button class="btn" type="submit" id="gate-go">Enter</button>
+        <span class="msg" id="gate-msg" role="status">Checking…</span>
+      </div>
+    </form>
+    <p class="gate-note">Team only. Ask someone on the squad for the password.</p>
+  </div>
+</section>
+
+<main class="sheet" id="app" hidden>
+  <header class="mast">
+    <div>
+      <h1>Off the<br>Record</h1>
+      <div class="team">Stevens XC/TF <span>·</span> Distance Squad</div>
+    </div>
+    <div class="stamp">
+      <div class="unofficial">Unofficial results</div>
+      <div><b id="total">—</b> quotes on file</div>
+      <div>Last entry <b id="last">—</b></div>
+    </div>
   </header>
 
-  <form class="compose" id="compose" autocomplete="off">
-    <h2>Log a quote</h2>
-    <label for="q-text">The quote
-      <textarea id="q-text" maxlength="1000" placeholder="What did they say?" required></textarea>
-    </label>
-    <div class="row">
-      <label for="q-who">Who said it
-        <input type="text" id="q-who" maxlength="60" placeholder="Name" list="names" required>
-        <datalist id="names"></datalist>
+  <details class="entry" id="entry">
+    <summary>Submit an entry <span class="plus">Add</span></summary>
+    <form id="compose" autocomplete="off">
+      <label class="field"><span>The quote</span>
+        <textarea id="q-text" maxlength="1000" placeholder="What did they say?" required></textarea>
       </label>
-      <label for="q-when">Date &amp; time
-        <input type="datetime-local" id="q-when" required>
+      <div class="grid2">
+        <label class="field"><span>Athlete</span>
+          <input type="text" id="q-who" maxlength="60" placeholder="Who said it" list="names" required>
+          <datalist id="names"></datalist>
+        </label>
+        <label class="field"><span>Date &amp; time</span>
+          <input type="datetime-local" id="q-when" required>
+        </label>
+      </div>
+      <div class="field"><span>Season</span>
+        <div class="seg" id="q-season" role="group" aria-label="Season">
+          <button type="button" data-v="XC">XC</button>
+          <button type="button" data-v="Indoor">Indoor</button>
+          <button type="button" data-v="Outdoor">Outdoor</button>
+        </div>
+      </div>
+      <div class="field"><span>Where it happened</span>
+        <div class="seg" id="q-spot" role="group" aria-label="Where it happened">
+          <button type="button" data-v="Long run">Long run</button>
+          <button type="button" data-v="Easy run">Easy run</button>
+          <button type="button" data-v="Workout">Workout</button>
+          <button type="button" data-v="Bus / van">Bus / van</button>
+          <button type="button" data-v="Dorm / dining hall">Dorm / dining hall</button>
+          <button type="button" data-v="__other">Other</button>
+        </div>
+        <input type="text" id="q-spot-other" maxlength="40" placeholder="Where was it?" hidden>
+      </div>
+      <label class="check" for="q-nctx"><input type="checkbox" id="q-nctx"> <code>NC</code> Better with no context</label>
+      <label class="field" for="q-ctx"><span>Context (optional)</span>
+        <textarea id="q-ctx" maxlength="1000" placeholder="Mile 9 of the long run, everyone was delirious…"></textarea>
       </label>
-    </div>
-    <label class="check" for="q-nctx"><input type="checkbox" id="q-nctx"> Better without context</label>
-    <label for="q-ctx" id="ctx-label">Context <span class="msg">(optional)</span>
-      <textarea id="q-ctx" maxlength="1000" placeholder="Where were you, what was happening…"></textarea>
-    </label>
-    <div class="actions">
-      <button class="btn" type="submit" id="q-save">Add to the book</button>
-      <span class="msg" id="q-msg" role="status"></span>
-    </div>
-  </form>
+      <div class="actions">
+        <button class="btn" type="submit" id="q-save">Post result</button>
+        <span class="msg" id="q-msg" role="status"></span>
+      </div>
+    </form>
+  </details>
 
-  <section class="tools" aria-label="Browse quotes">
-    <div class="actions" style="justify-content:space-between">
-      <span class="count" id="count">Loading quotes…</span>
+  <section class="controls" aria-label="Results">
+    <div class="heat">
+      <h2 id="heat-title">Latest</h2>
+      <div class="tabs" role="group" aria-label="Sort">
+        <button type="button" id="tab-latest" aria-pressed="true">Latest</button>
+        <button type="button" id="tab-pr" aria-pressed="false">PR Board</button>
+      </div>
     </div>
-    <input type="search" id="q-search" placeholder="Search quotes, names, context">
-    <div class="chips" id="chips"></div>
+    <input type="search" id="q-search" placeholder="Search quotes, athletes, context">
+    <div class="filters" id="filters"></div>
   </section>
 
-  <section class="list" id="list" aria-live="polite">
-    <div class="empty"><strong>No quotes yet</strong>Add the first one above and it shows up here for everyone.</div>
+  <section class="results" aria-live="polite">
+    <div class="thead"><span>Pl</span><span>Athlete / Quote</span><span class="r">Time</span><span class="r">PRs</span></div>
+    <div id="rows"><div class="empty"><strong>Loading results</strong>Pulling the sheet…</div></div>
   </section>
-</div>
+
+  <p class="legend"><b>NC</b> — better with no context &nbsp;·&nbsp; <b>PR</b> — tap to give a quote a PR, tap again to take it back &nbsp;·&nbsp; Corrections go through Colin.</p>
+</main>
 
 <script type="module">
-// ===== PASTE YOUR FIREBASE CONFIG HERE (Firebase console → Project settings → Your apps → Web) =====
 const firebaseConfig = {
-  apiKey: "PASTE_ME",
-  authDomain: "PASTE_ME",
-  projectId: "PASTE_ME",
-  storageBucket: "PASTE_ME",
-  messagingSenderId: "PASTE_ME",
-  appId: "PASTE_ME"
+  apiKey: "AIzaSyDSPlpBEz4adkV-VGkG9thPjlPcfS6tULc",
+  authDomain: "quote-book-1e6b7.firebaseapp.com",
+  projectId: "quote-book-1e6b7",
+  storageBucket: "quote-book-1e6b7.firebasestorage.app",
+  messagingSenderId: "710476533779",
+  appId: "1:710476533779:web:ac96723bbd4defb9e3efe6",
+  measurementId: "G-43BGEJN6TY"
 };
-// ===================================================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp }
+import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const $ = s => document.querySelector(s);
-const form=$("#compose"), txt=$("#q-text"), who=$("#q-who"), when=$("#q-when"),
-      nctx=$("#q-nctx"), ctx=$("#q-ctx"), save=$("#q-save"), msg=$("#q-msg"),
-      list=$("#list"), count=$("#count"), search=$("#q-search"), chips=$("#chips"), names=$("#names");
+const $=s=>document.querySelector(s);
+const form=$("#compose"), txt=$("#q-text"), who=$("#q-who"), when=$("#q-when"), nctx=$("#q-nctx"), ctx=$("#q-ctx"),
+      save=$("#q-save"), msg=$("#q-msg"), rows=$("#rows"), search=$("#q-search"), filters=$("#filters"), names=$("#names"),
+      seasonSeg=$("#q-season"), spotSeg=$("#q-spot"), spotOther=$("#q-spot-other");
 
-let quotes=[], speaker=null, col=null;
+const SEASONS=["XC","Indoor","Outdoor"];
+let quotes=[], view="latest", fSeason=null, fSpot=null, db=null, col=null;
+let mine=new Set(); try{mine=new Set(JSON.parse(localStorage.getItem("otr-prs")||"[]"))}catch(e){}
+const saveMine=()=>{try{localStorage.setItem("otr-prs",JSON.stringify([...mine]))}catch(e){}};
 
 const pad=n=>String(n).padStart(2,"0");
-function nowLocal(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes())}
-when.value=nowLocal();
+const nowLocal=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`};
+function seasonFor(d){const m=d.getMonth();return (m>=7&&m<=10)?"XC":(m===11||m<=1)?"Indoor":"Outdoor"}
+function pick(seg,v){seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)))}
+function picked(seg){const b=seg.querySelector('[aria-pressed="true"]');return b?b.dataset.v:null}
+function resetForm(){txt.value="";ctx.value="";nctx.checked=false;ctx.disabled=false;when.value=nowLocal();pick(seasonSeg,seasonFor(new Date()));pick(spotSeg,null);spotOther.hidden=true;spotOther.value=""}
+resetForm();
+seasonSeg.addEventListener("click",e=>{const b=e.target.closest("button");if(b)pick(seasonSeg,b.dataset.v)});
+spotSeg.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const on=b.getAttribute("aria-pressed")==="true";pick(spotSeg,on?null:b.dataset.v);spotOther.hidden=picked(spotSeg)!=="__other";if(!spotOther.hidden)spotOther.focus()});
+when.addEventListener("change",()=>{const d=new Date(when.value);if(!isNaN(d))pick(seasonSeg,seasonFor(d))});
 nctx.addEventListener("change",()=>{ctx.disabled=nctx.checked;if(nctx.checked)ctx.value=""});
 
-function fmtWhen(s){
-  const d=new Date(s); if(!s||isNaN(d)) return s||"";
-  return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" · "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
-}
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function fmtDate(s){const d=new Date(s);return isNaN(d)?(s||""):d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"2-digit"})}
+function fmtTime(s){const d=new Date(s);return isNaN(d)?"":d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}
 function setMsg(t,err){msg.textContent=t;msg.className="msg"+(err?" err":"")}
 
+function chip(label,active,on){const b=el("button","chip",label);b.type="button";b.setAttribute("aria-pressed",String(active));b.onclick=on;return b}
+function renderFilters(){
+  const spots=[...new Set(quotes.map(q=>q.spot).filter(Boolean))].sort();
+  const parts=[chip("All seasons",fSeason===null,()=>{fSeason=null;render()}),
+    ...SEASONS.map(s=>chip(s,fSeason===s,()=>{fSeason=fSeason===s?null:s;render()}))];
+  if(spots.length){parts.push(el("span","sep"));parts.push(...spots.map(s=>chip(s,fSpot===s,()=>{fSpot=fSpot===s?null:s;render()})))}
+  filters.replaceChildren(...parts);
+}
+
 function render(){
-  const term=search.value.trim().toLowerCase();
   const people=[...new Set(quotes.map(q=>q.who))].sort((a,b)=>a.localeCompare(b));
   names.replaceChildren(...people.map(p=>{const o=document.createElement("option");o.value=p;return o}));
-  if(speaker&&!people.includes(speaker)) speaker=null;
-  chips.replaceChildren(...(people.length>1?["All",...people]:[]).map(p=>{
-    const b=el("button","chip",p);b.type="button";
-    b.setAttribute("aria-pressed",String(p==="All"?speaker===null:speaker===p));
-    b.onclick=()=>{speaker=p==="All"?null:p;render()};return b}));
-  const shown=quotes.filter(q=>(!speaker||q.who===speaker)&&(!term||[q.text,q.who,q.context].join(" ").toLowerCase().includes(term)));
-  count.textContent=quotes.length?(shown.length===quotes.length?quotes.length+(quotes.length===1?" quote":" quotes"):shown.length+" of "+quotes.length+" quotes"):"No quotes yet";
+  $("#total").textContent=quotes.length;
+  const newest=[...quotes].sort((a,b)=>String(b.when).localeCompare(String(a.when)))[0];
+  $("#last").textContent=newest?fmtDate(newest.when):"—";
+  $("#heat-title").textContent=view==="pr"?"PR Board":"Latest";
+  $("#tab-latest").setAttribute("aria-pressed",String(view==="latest"));
+  $("#tab-pr").setAttribute("aria-pressed",String(view==="pr"));
+  renderFilters();
+
+  const term=search.value.trim().toLowerCase();
+  let shown=quotes.filter(q=>(!fSeason||q.season===fSeason)&&(!fSpot||q.spot===fSpot)&&
+    (!term||[q.text,q.who,q.context,q.spot].join(" ").toLowerCase().includes(term)));
+  shown.sort(view==="pr"
+    ?(a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when))
+    :(a,b)=>String(b.when).localeCompare(String(a.when)));
+
   if(!shown.length){
     const e=el("div","empty");
-    e.append(el("strong",null,quotes.length?"Nothing matches":"No quotes yet"),
-      document.createTextNode(quotes.length?"Try a different search or name.":"Add the first one above and it shows up here for everyone."));
-    list.replaceChildren(e);return;
+    e.append(el("strong",null,quotes.length?"No results":"No entries yet"),
+      document.createTextNode(quotes.length?"Nothing matches those filters.":"Hit Submit an entry and post the first one."));
+    rows.replaceChildren(e);return;
   }
-  list.replaceChildren(...shown.map(q=>{
-    const card=el("article","q");
-    card.append(el("blockquote",null,q.text));
-    const w=el("div","who");w.append("— ",el("mark",null,q.who));card.append(w);
-    card.append(el("div","meta",fmtWhen(q.when)));
-    if(q.noContext) card.append(el("span","nctx","Better without context"));
-    else if(q.context){const c=el("div","ctx");c.append(el("b",null,"Context"),document.createTextNode(q.context));card.append(c)}
-    return card;
+  rows.replaceChildren(...shown.map((q,i)=>{
+    const r=el("article","row"+(view==="pr"&&i<3&&(q.prs||0)>0?" top":""));
+    r.append(el("div","pl",String(i+1)));
+    const b=el("div","body");
+    b.append(el("div","athlete",q.who),el("div","quote",q.text));
+    const tags=el("div","tags");
+    if(q.season)tags.append(el("span","tag season",q.season));
+    if(q.spot)tags.append(el("span","tag",q.spot));
+    if(q.noContext)tags.append(el("span","tag nc","NC"));
+    if(tags.childNodes.length)b.append(tags);
+    if(!q.noContext&&q.context)b.append(el("div","ctx",q.context));
+    r.append(b);
+    const meta=el("div","meta");
+    const t=el("div","time");t.append(el("b",null,fmtDate(q.when)),document.createTextNode(fmtTime(q.when)));
+    const pr=el("div","pr");
+    const btn=el("button","prbtn",`PR ${q.prs||0}`);btn.type="button";
+    btn.setAttribute("aria-pressed",String(mine.has(q.id)));
+    btn.setAttribute("aria-label",(mine.has(q.id)?"Remove your PR from":"Give a PR to")+" this quote");
+    btn.onclick=()=>togglePR(q,btn);
+    pr.append(btn);
+    meta.append(t,pr);r.append(meta);
+    return r;
   }));
 }
+
+async function togglePR(q,btn){
+  if(!db)return;
+  const had=mine.has(q.id);
+  btn.disabled=true;
+  try{
+    await updateDoc(doc(db,"quotes",q.id),{prs:increment(had?-1:1)});
+    had?mine.delete(q.id):mine.add(q.id);saveMine();render();
+  }catch(e){console.error(e);btn.disabled=false}
+}
+
+$("#tab-latest").onclick=()=>{view="latest";render()};
+$("#tab-pr").onclick=()=>{view="pr";render()};
 search.addEventListener("input",render);
 
-if(firebaseConfig.apiKey==="PASTE_ME"){
-  count.textContent="Setup needed: paste your Firebase config into index.html";
-}else{
-  const db=getFirestore(initializeApp(firebaseConfig));
+const app=initializeApp(firebaseConfig);
+db=getFirestore(app);
+const auth=getAuth(app);
+const gate=$("#gate"), appEl=$("#app"), gateForm=$("#gate-form"), gatePass=$("#gate-pass"), gateMsg=$("#gate-msg"), gateGo=$("#gate-go");
+let started=false;
+
+function unlock(){
+  if(started)return; started=true;
+  gate.hidden=true; appEl.hidden=false;
   col=collection(db,"quotes");
-  onSnapshot(query(col,orderBy("when","desc")),
-    snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
-    err=>{console.error(err);count.textContent="Couldn't load quotes. Check the Firestore rules and config."});
+  onSnapshot(col,snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
+    err=>{console.error(err);rows.replaceChildren(Object.assign(el("div","empty"),{textContent:"Couldn't load results. Check the Firestore rules."}))});
 }
+
+onAuthStateChanged(auth,async user=>{
+  if(!user){gateMsg.textContent="";gatePass.focus();return}
+  try{
+    const m=await getDoc(doc(db,"members",user.uid));
+    if(m.exists()){unlock();return}
+  }catch(e){console.error(e)}
+  gateMsg.textContent="";gatePass.focus();
+});
+
+gateForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const pass=gatePass.value.trim().toLowerCase();
+  if(!pass)return;
+  gateGo.disabled=true; gateMsg.className="msg"; gateMsg.textContent="Checking…";
+  try{
+    const cred=auth.currentUser?{user:auth.currentUser}:await signInAnonymously(auth);
+    await setDoc(doc(db,"members",cred.user.uid),{pass,at:serverTimestamp()});
+    unlock();
+  }catch(err){
+    console.error(err);
+    gateMsg.className="msg err";
+    gateMsg.textContent=err&&err.code==="permission-denied"?"Wrong password.":"Couldn't check the password. Try again.";
+    gatePass.select();
+  }finally{gateGo.disabled=false}
+});
 
 form.addEventListener("submit",async e=>{
   e.preventDefault();
-  if(!col){setMsg("The site isn't connected to Firebase yet.",true);return}
-  const data={text:txt.value.trim(),who:who.value.trim(),when:when.value,
-    noContext:nctx.checked,context:nctx.checked?"":ctx.value.trim(),createdAt:serverTimestamp()};
-  if(!data.text||!data.who||!data.when){setMsg("Fill in the quote, who said it, and when.",true);return}
-  save.disabled=true;setMsg("Saving…");
-  try{
-    await addDoc(col,data);
-    txt.value="";ctx.value="";nctx.checked=false;ctx.disabled=false;when.value=nowLocal();
-    setMsg("Added to the book.");
-  }catch(err){console.error(err);setMsg("Couldn't save that. Try again in a moment.",true)}
+  if(!col){setMsg("Not connected to the database.",true);return}
+  let spot=picked(spotSeg);if(spot==="__other")spot=spotOther.value.trim();
+  const data={text:txt.value.trim(),who:who.value.trim(),when:when.value,season:picked(seasonSeg)||seasonFor(new Date()),
+    spot:spot||"",noContext:nctx.checked,context:nctx.checked?"":ctx.value.trim(),prs:0,createdAt:serverTimestamp()};
+  if(!data.text||!data.who||!data.when){setMsg("Fill in the quote, athlete, and when.",true);return}
+  save.disabled=true;setMsg("Posting…");
+  try{await addDoc(col,data);resetForm();setMsg("Posted. It's on the sheet.");view="latest";render()}
+  catch(err){console.error(err);setMsg("Couldn't post that. Make sure the Firestore rules are updated.",true)}
   finally{save.disabled=false}
 });
 </script>
