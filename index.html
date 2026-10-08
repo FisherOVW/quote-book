@@ -200,6 +200,30 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .topnav .lock svg{width:12px;height:12px}
 @media (max-width:420px){.topnav .lock span{display:none}}
 
+/* ===== DQ'd mode: caution tape, red alarm wash ===== */
+.tape{display:none}
+body.dq-mode{color-scheme:dark;--paper:#0d0a0b;--sheet:#17100f;--stripe:#1d1414;--rule:#3a2526;--ink:#f1e9e7;--muted:#a8918e}
+body.dq-mode .bg::before{background:
+  repeating-linear-gradient(-45deg,rgba(217,65,90,.07) 0 26px,transparent 26px 52px),
+  radial-gradient(ellipse 60% 45% at 0% 20%,rgba(217,65,90,.35),transparent 70%),
+  radial-gradient(ellipse 60% 45% at 100% 80%,rgba(217,65,90,.30),transparent 70%)}
+body.dq-mode .bg::after{opacity:0}
+body.dq-mode .topnav{border-bottom-color:#f2c230;background:#0a0707}
+body.dq-mode .banner::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(217,65,90,.45),rgba(60,0,10,.55));mix-blend-mode:multiply;pointer-events:none}
+body.dq-mode .banner-inner{z-index:2}
+body.dq-mode .tape{display:block;position:absolute;left:-10%;right:-10%;top:30%;z-index:1;transform:rotate(-5deg);background:repeating-linear-gradient(-45deg,#f2c230 0 18px,#111 18px 36px);padding:6px 0;box-shadow:0 4px 0 rgba(0,0,0,.35);overflow:hidden;white-space:nowrap}
+body.dq-mode .tape span{display:inline-block;background:#f2c230;color:#111;font-family:var(--f-mono);font-weight:600;font-size:12px;letter-spacing:.14em;padding:3px 0;width:100%}
+@media (prefers-reduced-motion:no-preference){body.dq-mode .tape span{animation:tape 30s linear infinite}@keyframes tape{to{transform:translateX(-30%)}}}
+body.dq-mode .crest{background:#111;border-color:#f2c230;color:#f2c230}
+body.dq-mode .meetinfo{border-color:var(--rule)}
+body.dq-mode .bib{box-shadow:6px 6px 0 #f2c230}
+body.dq-mode .ticker-track span b{color:#f2c230}
+body.dq-mode .dq-banner{display:none}
+
+.violation{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#f2c230;border:1px dashed #f2c230;padding:4px 8px;align-self:flex-start;background:rgba(242,194,48,.06)}
+.violation::before{content:"⚑ Official ruling: "}
+body.dq-mode .row .pl{color:var(--red)}
+
 /* Gate on the skyline */
 .gate{position:relative;isolation:isolate;background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 70%,#07090f 100%)}
 .gate .sky{position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;height:min(48vh,420px);z-index:-1}
@@ -264,12 +288,13 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
     <button type="button" class="lock" id="nav-lock" title="Lock the site and go back to the password screen"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.5" width="8" height="6" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span>Lock</span></button>
   </header>
   <section class="banner">
+    <div class="tape" aria-hidden="true"><span>DISQUALIFIED · UNSPORTSMANLIKE QUOTES · OFFICIALS REVIEWING THE TAPE · DO NOT CROSS · DISQUALIFIED · UNSPORTSMANLIKE QUOTES · OFFICIALS REVIEWING THE TAPE · DO NOT CROSS ·</span></div>
     <svg class="sky" id="sky" aria-hidden="true" preserveAspectRatio="xMidYMax slice"></svg>
     <div class="banner-inner">
-      <div class="crest" aria-hidden="true">XC<br>TF</div>
+      <div class="crest" id="crest" aria-hidden="true">XC<br>TF</div>
       <div class="banner-title">
-        <h1>Off the Record</h1>
-        <div class="sub"><b>Stevens XC/TF</b> · Distance Squad · Hoboken, NJ</div>
+        <h1 id="banner-title">Off the Record</h1>
+        <div class="sub" id="banner-sub"><b>Stevens XC/TF</b> · Distance Squad · Hoboken, NJ</div>
       </div>
       <span class="unofficial">Unofficial results</span>
     </div>
@@ -283,7 +308,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
   <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
 
   <section class="bib-wrap" id="feature" hidden>
-    <p class="label">Quote of the season</p>
+    <p class="label" id="feature-label">Quote of the season</p>
     <div class="bib">
       <span class="pin-b"></span>
       <div class="bib-top"><span id="bib-season">Stevens XC/TF</span><span class="r">PR Board #1</span></div>
@@ -294,7 +319,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
   </section>
 
   <details class="entry" id="entry">
-    <summary>Submit an entry <span class="plus">Add</span></summary>
+    <summary><span id="entry-title">Submit an entry</span> <span class="plus">Add</span></summary>
     <form id="compose" autocomplete="off">
       <label class="field"><span>The quote</span>
         <textarea id="q-text" maxlength="1000" placeholder="What did they say?" required></textarea>
@@ -326,7 +351,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
         </div>
         <input type="text" id="q-spot-other" maxlength="40" placeholder="Where was it?" hidden>
       </div>
-      <label class="check secret-check" for="q-secret" id="secret-wrap" hidden><input type="checkbox" id="q-secret"> Post to <b>DQ'd</b> (secret, only the inner circle sees it)</label>
+      <label class="check secret-check" for="q-secret" id="secret-wrap" hidden><input type="checkbox" id="q-secret"> <b>DQ it</b>: too outrageous for the public sheet</label>
       <label class="check" for="q-nctx"><input type="checkbox" id="q-nctx"> <code>NC</code> Better with no context</label>
       <label class="field" for="q-ctx"><span>Context (optional)</span>
         <textarea id="q-ctx" maxlength="1000" placeholder="Mile 9 of the long run, everyone was delirious…"></textarea>
@@ -451,27 +476,55 @@ function drawSkyline(svg){
 }
 drawSkyline($("#sky")); drawSkyline($("#gate-sky"));
 
-function renderExtras(){
-  const latest=[...quotes].sort((a,b)=>String(b.when).localeCompare(String(a.when))).slice(0,10);
+const VIOLATIONS=[
+  "Rule 1.1 · Unsportsmanlike Quote",
+  "Rule 2.3 · Lane Violation (Crossed a Line)",
+  "Rule 3.7 · False Start (Said It Way Too Early)",
+  "Rule 4.2 · Obstruction of Decency",
+  "Rule 5.9 · Illegal Assistance (Nobody Asked)",
+  "Rule 6.6 · Left the Course Entirely",
+  "Rule 7.4 · Bumping (Into HR Territory)",
+  "Rule 8.0 · Excessive Celebration of a Bad Take",
+  "Rule 9.1 · Did Not Finish (Their Thought)",
+  "Rule 10.3 · Pacing Violation (Way Too Far, Way Too Fast)",
+  "Rule 11.8 · Said It in Front of the Coach",
+  "Rule 12.2 · Failure to Read the Room"
+];
+function violationFor(id){let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))>>>0;return VIOLATIONS[h%VIOLATIONS.length]}
+
+function renderExtras(pool){
+  const latest=[...pool].sort((a,b)=>String(b.when).localeCompare(String(a.when))).slice(0,10);
   const tk=$("#ticker");
   tk.replaceChildren(...latest.map(q=>{const sp=el("span");sp.append(el("b",null,q.who),document.createTextNode(`\u201C${q.text}\u201D`));return sp}));
   tk.style.setProperty("--dur",Math.max(25,latest.reduce((n,q)=>n+q.text.length+q.who.length,0)/4)+"s");
-  const top=[...quotes].filter(q=>(q.prs||0)>0).sort((a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when)))[0];
+  const top=[...pool].filter(q=>(q.prs||0)>0).sort((a,b)=>(b.prs||0)-(a.prs||0)||String(b.when).localeCompare(String(a.when)))[0];
   const f=$("#feature");
   if(!top){f.hidden=true;return}
   f.hidden=false;
   $("#bib-prs").textContent=top.prs;
   $("#bib-quote").textContent=top.text;
   $("#bib-who").textContent=top.who;
-  $("#bib-season").textContent=(top.season?top.season+" · ":"")+"Stevens XC/TF";
+  $("#bib-season").textContent=(top.season?top.season+" · ":"")+(top._dq?"DQ'd":"Stevens XC/TF");
 }
 
 function render(){
-  renderExtras();
-  const people=[...new Set(quotes.map(q=>q.who))].sort((a,b)=>a.localeCompare(b));
-  names.replaceChildren(...people.map(p=>{const o=document.createElement("option");o.value=p;return o}));
-  $("#total").textContent=quotes.length;
-  const newest=[...quotes].sort((a,b)=>String(b.when).localeCompare(String(a.when)))[0];
+  const inDq=view==="dq";
+  const pool=inDq?dqQuotes:quotes;
+  document.body.classList.toggle("dq-mode",inDq);
+  $("#banner-title").textContent=inDq?"DQ'd":"Off the Record";
+  $("#banner-sub").replaceChildren(...(inDq
+    ?[Object.assign(document.createElement("b"),{textContent:"Disqualified"}),document.createTextNode(" · Unsportsmanlike quotes · Officials are reviewing the tape")]
+    :[Object.assign(document.createElement("b"),{textContent:"Stevens XC/TF"}),document.createTextNode(" · Distance Squad · Hoboken, NJ")]));
+  $("#crest").innerHTML=inDq?"DQ":"XC<br>TF";
+  $("#q-secret").checked=inDq;
+  $("#feature-label").textContent=inDq?"Most outrageous · Lifetime ban pending":"Quote of the season";
+  $("#entry-title").textContent=inDq?"File a DQ":"Submit an entry";
+  $("#q-save").textContent=inDq?"Disqualify":"Post result";
+  renderExtras(pool);
+  const people=[...new Set(pool.map(q=>q.who))].sort((a,b)=>a.localeCompare(b));
+  names.replaceChildren(...[...new Set([...quotes,...dqQuotes].map(q=>q.who))].map(p=>{const o=document.createElement("option");o.value=p;return o}));
+  $("#total").textContent=pool.length;
+  const newest=[...pool].sort((a,b)=>String(b.when).localeCompare(String(a.when)))[0];
   $("#last").textContent=newest?fmtDate(newest.when):"—";
   $("#heat-title").textContent=view==="pr"?"PR Board":view==="athletes"?"Athletes":view==="dq"?"DQ'd":"Results";
   $("#dq-banner").hidden=view!=="dq";
@@ -493,8 +546,8 @@ function render(){
   $("#heat-count").textContent=shown.length?shown.length+(shown.length===1?" result":" results"):"";
   if(!shown.length){
     const e=el("div","empty");
-    e.append(el("strong",null,src.length?"No results":view==="dq"?"Nothing DQ'd yet":"No entries yet"),
-      document.createTextNode(src.length?"Nothing matches those filters.":view==="dq"?"Post a quote with the DQ'd box checked and it lands here.":"Hit Submit an entry and post the first one."));
+    e.append(el("strong",null,src.length?"No results":view==="dq"?"Clean meet so far":"No entries yet"),
+      document.createTextNode(src.length?"Nothing matches those filters.":view==="dq"?"No disqualifications yet. Someone will say something unhinged soon.":"Hit Submit an entry and post the first one."));
     rows.replaceChildren(e);return;
   }
   rows.replaceChildren(...shown.map((q,i)=>{
@@ -509,6 +562,7 @@ function render(){
     if(q._dq)tags.append(el("span","tag dqt","DQ"));
     if(tags.childNodes.length)b.append(tags);
     if(!q.noContext&&q.context)b.append(el("div","ctx",q.context));
+    if(q._dq)b.append(el("div","violation",violationFor(q.id)));
     r.append(b);
     const meta=el("div","meta");
     const t=el("div","time");t.append(el("b",null,fmtDate(q.when)),document.createTextNode(fmtTime(q.when)));
@@ -567,6 +621,7 @@ const PASS_HASH="c1bbfe449f1639e45aa3b4f75eb861e608b9e466b61da04cc256dad0e86775c
 async function unlock(){
   if(started)return; started=true;
   gate.hidden=true; appEl.hidden=false;
+  if(dqName){secretMode=true;view="dq";$("#nav-dq").hidden=false;$("#secret-wrap").hidden=false;render()}
   try{
     await loadFirebase();
     db=getFirestore(initializeApp(firebaseConfig));
@@ -574,8 +629,6 @@ async function unlock(){
     onSnapshot(col,snap=>{quotes=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
       err=>{console.error(err);showLoadError("Couldn't load results. Check the Firestore rules.")});
     if(dqName){
-      secretMode=true;
-      $("#nav-dq").hidden=false; $("#secret-wrap").hidden=false;
       dqCol=collection(db,dqName);
       onSnapshot(dqCol,snap=>{dqQuotes=snap.docs.map(d=>({id:d.id,_dq:true,...d.data()}));render()},
         err=>console.error(err));
@@ -641,7 +694,7 @@ form.addEventListener("submit",async e=>{
   if(!data.text||!data.who||!data.when){setMsg("Fill in the quote, athlete, and when.",true);return}
   save.disabled=true;setMsg("Posting…");
   const toDq=secretMode&&$("#q-secret").checked;
-  try{await addDoc(toDq?dqCol:col,data);resetForm();$("#q-secret").checked=false;setMsg(toDq?"Posted to DQ'd.":"Posted. It's on the sheet.");view=toDq?"dq":"latest";render()}
+  try{await addDoc(toDq?dqCol:col,data);resetForm();$("#q-secret").checked=false;setMsg(toDq?"Disqualified. Officials have been notified.":"Posted. It's on the sheet.");view=toDq?"dq":"latest";render()}
   catch(err){console.error(err);setMsg("Couldn't post that. Make sure the Firestore rules are updated.",true)}
   finally{save.disabled=false}
 });
