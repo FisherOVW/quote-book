@@ -183,6 +183,23 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .tag.dqt{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
 .secret-check{border:1px dashed var(--red);padding:8px 10px}
 
+/* Background: stadium glow + faint 400m oval */
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bg::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(ellipse 45% 40% at 0% 25%,var(--bg-glow),transparent 70%),
+  radial-gradient(ellipse 45% 45% at 100% 75%,var(--bg-glow),transparent 70%),
+  radial-gradient(ellipse 60% 40% at 50% 110%,var(--bg-glow2),transparent 70%)}
+.bg::after{content:"";position:absolute;left:50%;top:52%;width:min(1500px,170vw);aspect-ratio:7/4;transform:translate(-50%,-50%) rotate(-8deg);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 800'%3E%3Cg fill='none' stroke='%23888' stroke-width='2'%3E%3Crect x='60' y='60' width='1280' height='680' rx='340'/%3E%3Crect x='82' y='82' width='1236' height='636' rx='318'/%3E%3Crect x='104' y='104' width='1192' height='592' rx='296'/%3E%3Crect x='126' y='126' width='1148' height='548' rx='274'/%3E%3Crect x='148' y='148' width='1104' height='504' rx='252'/%3E%3Crect x='170' y='170' width='1060' height='460' rx='230'/%3E%3Crect x='192' y='192' width='1016' height='416' rx='208'/%3E%3Crect x='214' y='214' width='972' height='372' rx='186'/%3E%3C/g%3E%3Cg stroke='%23888' stroke-width='2'%3E%3Cline x1='700' y1='60' x2='700' y2='236'/%3E%3C/g%3E%3Crect x='694' y='60' width='12' height='176' fill='%23a32638' opacity='.6'/%3E%3C/svg%3E") center/contain no-repeat;opacity:var(--oval-op)}
+:root{--bg-glow:rgba(163,38,56,.14);--bg-glow2:rgba(58,31,51,.10);--oval-op:.35}
+@media (prefers-color-scheme: dark){:root{--bg-glow:rgba(217,65,90,.28);--bg-glow2:rgba(80,40,90,.25);--oval-op:.22}}
+
+/* Lock button */
+.topnav .lock{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:transparent;color:#b9bcc2;border:1px solid #3a3d44;padding:6px 9px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.topnav .lock:hover{color:#fff;border-color:#fff}
+.topnav .lock svg{width:12px;height:12px}
+@media (max-width:420px){.topnav .lock span{display:none}}
+
 /* Gate on the skyline */
 .gate{position:relative;isolation:isolate;background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 70%,#07090f 100%)}
 .gate .sky{position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;height:min(48vh,420px);z-index:-1}
@@ -213,6 +230,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"></div>
 <section class="gate" id="gate">
   <svg class="sky" id="gate-sky" aria-hidden="true" preserveAspectRatio="xMidYMax slice"></svg>
   <div class="gate-card">
@@ -243,6 +261,7 @@ body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
     </nav>
     <span class="spacer"></span>
     <button type="button" class="add" id="nav-add">+ Entry</button>
+    <button type="button" class="lock" id="nav-lock" title="Lock the site and go back to the password screen"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.5" width="8" height="6" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span>Lock</span></button>
   </header>
   <section class="banner">
     <svg class="sky" id="sky" aria-hidden="true" preserveAspectRatio="xMidYMax slice"></svg>
@@ -536,6 +555,7 @@ async function togglePR(q,btn){
 }
 
 document.querySelectorAll(".topnav nav button").forEach(b=>b.onclick=()=>{view=b.dataset.view;render();window.scrollTo({top:0,behavior:"smooth"})});
+$("#nav-lock").onclick=()=>{try{localStorage.removeItem("otr-ok");localStorage.removeItem("otr-dq")}catch(e){}location.reload()};
 $("#nav-add").onclick=()=>{const d=$("#entry");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>txt.focus(),300)};
 search.addEventListener("input",render);
 
